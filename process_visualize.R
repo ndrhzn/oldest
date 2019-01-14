@@ -45,6 +45,10 @@ df <- df %>%
          lost = died,
          age_became = became - born)
 
+df$died[nrow(df)] <- Sys.Date()
+df$lost[nrow(df)] <- Sys.Date()
+df$age[nrow(df)] <- df$died[nrow(df)] - df$born[nrow(df)]
+
 # first
 
 ggplot(df)+
@@ -57,13 +61,19 @@ ggplot(df)+
 
 # second
 
+png(filename = 'oldest.png', width = 1000, height = 600)
+
 ggplot(df)+
-  geom_hline(data = df[df$is_a_new_record == TRUE,], aes(yintercept = age),
-             linetype = 'dotted', color = '#5D646F', size = 0.4)+
+  # geom_hline(data = df[df$is_a_new_record == TRUE,], aes(yintercept = age),
+  #            linetype = 'dotted', color = '#5D646F', size = 0.4)+
   geom_segment(aes(x = became, y = age_became, xend = died, yend = age, color = gender))+
   geom_point(aes(x = died, y = age, color = gender))+
   scale_color_brewer(type = 'qual', palette = 2)+
-  scale_x_date(date_breaks = '5 years', date_labels = '%Y')+
+  scale_x_date(date_breaks = '5 years', date_labels = '\'%y')+
+  scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age), 6, style = 'jenks')$brks)+
+  labs(title = 'Title',
+       subtitle = 'Subitle subtitle',
+       caption = 'Data: | Viz: Textura.in.ua')+
   theme_minimal(base_family = 'Ubuntu Mono')+
   theme(
     legend.position = 'none',
@@ -85,3 +95,5 @@ ggplot(df)+
     plot.background = element_rect(fill = '#F3F7F7'),
     plot.margin = unit(c(1.5, 1.5, 1.5, 1.5), 'cm')
   )
+
+dev.off()
