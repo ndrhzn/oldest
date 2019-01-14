@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1547477026655.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "28450DC",
+    "lastKnownWriteTime" : 1547489399,
+    "last_content_update" : 1547489399183,
+    "path" : "~/R/oldest/process_visualize.R",
+    "project_path" : "process_visualize.R",
+    "properties" : {
+        "cursorPosition" : "80,39",
+        "scrollLine" : "75",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
