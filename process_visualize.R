@@ -6,6 +6,8 @@ Sys.setlocale(category = 'LC_TIME', locale = 'en_US.UTF-8')
 
 df <- read.csv('data.csv', stringsAsFactors = F)
 
+# declare function to format dates
+
 fix_dates <- function(date_vector){
   
   date_vector <- date_vector %>% 
@@ -35,48 +37,44 @@ fix_dates <- function(date_vector){
 }
 
 
+# fix dates and calculate necessary variables
+
 df <- df %>% 
   mutate(born = fix_dates(born),
          died = fix_dates(died),
-         age = died - born) %>% 
+         age = lubridate::time_length(died - born, 'years')) %>% 
   select(index, born, died, age, gender, is_a_new_record) %>% 
   mutate(reign = lead(died, n = 1) - died,
          became = lag(died),
          lost = died,
-         age_became = became - born)
+         age_became = lubridate::time_length(became - born, 'years'))
+
+# fix current titleholder dates
 
 df$died[nrow(df)] <- Sys.Date()
 df$lost[nrow(df)] <- Sys.Date()
-df$age[nrow(df)] <- df$died[nrow(df)] - df$born[nrow(df)]
+df$age[nrow(df)] <- lubridate::time_length(df$died[nrow(df)] - df$born[nrow(df)], 'years')
 
-# first
-
-ggplot(df)+
-  geom_linerange(aes(x = index, ymin = became, ymax = lost, color = gender),
-                 size = 3)+
-  scale_x_reverse()+
-  scale_y_date(date_breaks = '5 years', date_labels = '%Y', minor_breaks = NULL)+
-  coord_flip()+
-  theme_minimal(base_family = 'Ubuntu Mono')
-
-# second
+# visualize
 
 png(filename = 'oldest.png', width = 1000, height = 600)
 
 ggplot(df)+
-  # geom_hline(data = df[df$is_a_new_record == TRUE,], aes(yintercept = age),
-  #            linetype = 'dotted', color = '#5D646F', size = 0.4)+
   geom_segment(aes(x = became, y = age_became, xend = died, yend = age, color = gender))+
   geom_point(aes(x = died, y = age, color = gender))+
   scale_color_brewer(type = 'qual', palette = 2)+
-  scale_x_date(date_breaks = '5 years', date_labels = '\'%y')+
-  scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age), 6, style = 'jenks')$brks)+
-  labs(title = 'Title',
+  scale_x_date(limits = c(as.Date('1955-01-01'), as.Date('2020-01-01')),
+               breaks = seq.Date(as.Date('1955-01-01'), as.Date('2020-01-01'), '5 years'), 
+               date_labels = '\'%y', expand = c(0.01, 0.01))+
+  scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age), 6, 
+                                                       style = 'jenks')$brks %>% 
+                       round(digits = 1))+
+  labs(title = 'World\'s Oldest Person Titleholders Since 1955',
        subtitle = 'Subitle subtitle',
-       caption = 'Data: | Viz: Textura.in.ua')+
+       caption = 'Data: Gerontology Research Group | Viz: Textura.in.ua')+
   theme_minimal(base_family = 'Ubuntu Mono')+
   theme(
-    legend.position = 'none',
+    legend.position = 'top',
     legend.justification = 'left',
     legend.title = element_blank(),
     legend.text = element_text(size = 13),
@@ -85,8 +83,6 @@ ggplot(df)+
     text = element_text(color = '#5D646F'),
     axis.title = element_blank(),
     axis.text = element_text(size = 13),
-    strip.text = element_blank(),
-    axis.text.x.bottom = element_text(),
     panel.grid.major = element_line(linetype = 'dotted', color = '#5D646F', size = 0.1),
     panel.grid.minor = element_blank(),
     plot.title = element_text(size = 36, face = 'bold', margin = margin(b = 10)),
