@@ -47,13 +47,20 @@ df <- df %>%
   mutate(reign = lead(died, n = 1) - died,
          became = lag(died),
          lost = died,
-         age_became = lubridate::time_length(became - born, 'years'))
+         age_became = lubridate::time_length(became - born, 'years')) %>% 
+  filter(!is.na(became))
 
 # fix current titleholder dates
 
 df$died[nrow(df)] <- Sys.Date()
 df$lost[nrow(df)] <- Sys.Date()
 df$age[nrow(df)] <- lubridate::time_length(df$died[nrow(df)] - df$born[nrow(df)], 'years')
+
+legend <- data.frame(
+  x = as.Date(c('1990-01-01')),
+  y = c(112),
+  label = c('when she became world\'s oldest person')
+)
 
 # visualize
 
@@ -62,7 +69,8 @@ png(filename = 'oldest.png', width = 1000, height = 600)
 ggplot(df)+
   geom_segment(aes(x = became, y = age_became, xend = died, yend = age, color = gender))+
   geom_point(aes(x = died, y = age, color = gender))+
-  scale_color_brewer(type = 'qual', palette = 2)+
+  geom_text(data = legend, aes(x = x, y = y, label = label))+
+  scale_color_brewer(type = 'qual', palette = 2, labels = c('female', 'male'))+
   scale_x_date(limits = c(as.Date('1953-01-01'), as.Date('2020-01-01')),
                breaks = seq.Date(as.Date('1955-01-01'), as.Date('2020-01-01'), '5 years'), 
                date_labels = '\'%y', expand = c(0.01, 0.01))+
@@ -71,7 +79,8 @@ ggplot(df)+
                        round(digits = 1))+
   labs(title = 'World\'s Oldest Person Titleholders Since 1955',
        subtitle = 'Subitle subtitle',
-       caption = 'Data: Gerontology Research Group | Viz: Textura.in.ua')+
+       caption = 'Data: Gerontology Research Group | Viz: Textura.in.ua',
+       x = 'year', y = 'age')+
   theme_minimal(base_family = 'Ubuntu Mono')+
   theme(
     legend.position = 'top',
@@ -81,7 +90,8 @@ ggplot(df)+
     legend.spacing.x = unit(5, 'pt'),
     legend.margin = margin(l = -7),
     text = element_text(color = '#5D646F'),
-    axis.title = element_blank(),
+    axis.title.x = element_text(hjust = 1, size = 13, margin = margin(t = 10)),
+    axis.title.y = element_text(hjust = 1, size = 13, margin = margin(r = 10)),
     axis.text = element_text(size = 13),
     axis.text.y = element_text(vjust = -0.5, margin = margin(r = -35)),
     panel.grid.major = element_line(linetype = 'dotted', color = '#5D646F', size = 0.1),
