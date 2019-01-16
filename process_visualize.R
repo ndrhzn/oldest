@@ -63,7 +63,7 @@ ggplot(df)+
   geom_segment(aes(x = became, y = age_became, xend = died, yend = age, color = gender))+
   geom_point(aes(x = died, y = age, color = gender))+
   scale_color_brewer(type = 'qual', palette = 2)+
-  scale_x_date(limits = c(as.Date('1955-01-01'), as.Date('2020-01-01')),
+  scale_x_date(limits = c(as.Date('1953-01-01'), as.Date('2020-01-01')),
                breaks = seq.Date(as.Date('1955-01-01'), as.Date('2020-01-01'), '5 years'), 
                date_labels = '\'%y', expand = c(0.01, 0.01))+
   scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age), 6, 
@@ -83,6 +83,7 @@ ggplot(df)+
     text = element_text(color = '#5D646F'),
     axis.title = element_blank(),
     axis.text = element_text(size = 13),
+    axis.text.y = element_text(vjust = -0.5, margin = margin(r = -35)),
     panel.grid.major = element_line(linetype = 'dotted', color = '#5D646F', size = 0.1),
     panel.grid.minor = element_blank(),
     plot.title = element_text(size = 36, face = 'bold', margin = margin(b = 10)),
