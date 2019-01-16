@@ -43,23 +43,20 @@ df <- df %>%
   mutate(born = fix_dates(born),
          died = fix_dates(died),
          age = lubridate::time_length(died - born, 'years')) %>% 
-  select(index, born, died, age, gender, is_a_new_record) %>% 
-  mutate(reign = lead(died, n = 1) - died,
-         became = lag(died),
-         lost = died,
+  mutate(became = lag(died), 
          age_became = lubridate::time_length(became - born, 'years')) %>% 
-  filter(!is.na(became))
+  filter(!is.na(became)) %>% 
+  select(index, name, birthplace, born, became, died, age_became, age_died = age, gender)
 
 # fix current titleholder dates
 
 df$died[nrow(df)] <- Sys.Date()
-df$lost[nrow(df)] <- Sys.Date()
-df$age[nrow(df)] <- lubridate::time_length(df$died[nrow(df)] - df$born[nrow(df)], 'years')
+df$age_died[nrow(df)] <- lubridate::time_length(df$died[nrow(df)] - df$born[nrow(df)], 'years')
 
 legend <- data.frame(
-  x = as.Date(c('1990-01-01')),
-  y = c(112),
-  label = c('when she became world\'s oldest person')
+  x = as.Date(c('1987-10-01', '1998-01-01')),
+  y = c(112.7, 122.6),
+  label = c('when she became\nworld\'s oldest\nperson', 'when she died')
 )
 
 # visualize
@@ -67,18 +64,24 @@ legend <- data.frame(
 png(filename = 'oldest.png', width = 1000, height = 600)
 
 ggplot(df)+
-  geom_segment(aes(x = became, y = age_became, xend = died, yend = age, color = gender))+
-  geom_point(aes(x = died, y = age, color = gender))+
-  geom_text(data = legend, aes(x = x, y = y, label = label))+
-  scale_color_brewer(type = 'qual', palette = 2, labels = c('female', 'male'))+
+  geom_segment(aes(x = became, y = age_became, xend = died, yend = age_died, color = gender),
+               show.legend = F)+
+  geom_point(data = df[1:nrow(df)-1, ], aes(x = died, y = age_died, fill = gender), 
+             pch = 21, color = '#F3F7F7', size = 3)+
+  geom_label(data = legend, aes(x = x, y = y, label = label), 
+            family = 'Ubuntu Mono', color = '#5D646F', fill = '#F3F7F7',
+            hjust = c(0, -0.05), vjust = c(1, 0.5), label.size = NA, 
+            size = 4.5, lineheight = 0.9)+
+  scale_fill_brewer(type = 'qual', palette = 2, labels = c('female', 'male'), 
+                    aesthetics = c('fill', 'color'))+
   scale_x_date(limits = c(as.Date('1953-01-01'), as.Date('2020-01-01')),
                breaks = seq.Date(as.Date('1955-01-01'), as.Date('2020-01-01'), '5 years'), 
                date_labels = '\'%y', expand = c(0.01, 0.01))+
-  scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age), 6, 
+  scale_y_continuous(breaks = classInt::classIntervals(as.numeric(df$age_died), 7, 
                                                        style = 'jenks')$brks %>% 
                        round(digits = 1))+
+  guides(fill = guide_legend(override.aes = list(size = 5)))+
   labs(title = 'World\'s Oldest Person Titleholders Since 1955',
-       subtitle = 'Subitle subtitle',
        caption = 'Data: Gerontology Research Group | Viz: Textura.in.ua',
        x = 'year', y = 'age')+
   theme_minimal(base_family = 'Ubuntu Mono')+
