@@ -1,4 +1,5 @@
 library(ggplot2)
+library(dplyr)
 
 df <- read.csv('data_clean.csv', stringsAsFactors = F, 
                colClasses = c(NA, NA, NA, "Date", "Date", "Date", NA, NA, NA))
@@ -21,7 +22,7 @@ ggplot(df)+
             family = 'Ubuntu Mono', color = '#5D646F', fill = '#F3F7F7',
             hjust = c(0, -0.05), vjust = c(1, 0.5), label.size = NA, 
             size = 4.5, lineheight = 0.9)+
-  scale_fill_brewer(type = 'qual', palette = 2, labels = c('female', 'male'), 
+  scale_fill_brewer(type = 'qual', palette = 2, direction = -1, labels = c('female', 'male'), 
                     aesthetics = c('fill', 'color'))+
   scale_x_date(limits = c(as.Date('1953-01-01'), as.Date('2020-01-01')),
                breaks = seq.Date(as.Date('1955-01-01'), as.Date('2020-01-01'), '5 years'), 

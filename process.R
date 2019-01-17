@@ -48,11 +48,11 @@ fix_dates <- function(date_vector){
 df <- df %>% 
   mutate(born = fix_dates(born),
          died = fix_dates(died),
-         age = lubridate::time_length(died - born, 'years')) %>% 
-  mutate(became = lag(died), 
-         age_became = lubridate::time_length(became - born, 'years')) %>% 
+         became = lag(died),
+         age_became = lubridate::time_length(became - born, 'years'),
+         age_died = lubridate::time_length(died - born, 'years')) %>% 
   filter(!is.na(became)) %>% 
-  select(index, name, birthplace, born, became, died, age_became, age_died = age, gender)
+  select(index, name, birthplace, born, became, died, age_became, age_died, gender)
 
 # fix current titleholder dates
 
