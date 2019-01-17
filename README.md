@@ -1,2 +1,1 @@
-# oldest
-Visualize the list of World's Oldest People
+![World's Oldest Person Titleholders Since 1955](oldest.png)
